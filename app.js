@@ -128,7 +128,8 @@ function exportUI(){
   const m=new Map();
   datos.forEach(c=>{const k=c.fecha.slice(0,7),x=m.get(k)||{n:0,t:0};x.n++;x.t+=c.total;m.set(k,x)});
   const ks=[...m.keys()].sort().reverse();
-  $('e-mes').innerHTML=ks.length?ks.map(k=>`<option value="${k}">${nombreMes(k)} · ${m.get(k).n} cargas · ${soles(m.get(k).t)}</option>`).join(''):'<option value="">No hay cargas guardadas</option>';
+  $('e-mes').innerHTML=ks.length?ks.map(k=>`<option value="${k}">${nombreMes(k)} · ${m.get(k).n} ${m.get(k).n===1?'carga':'cargas'} · ${soles(m.get(k).t)}</option>`).join(''):'<option value="">No hay cargas guardadas</option>';
+  limpiarInfo();
 }
 $('e-go').onclick=()=>{
   const k=$('e-mes').value;if(!k){toast('No hay nada que exportar');return}
@@ -141,15 +142,8 @@ $('e-go').onclick=()=>{
   L.push(['"DEBE"','','','','','',m2(T.d),''].join(','));
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}));
-   a.download=`flete ${nombreMes(k)}.csv`;a.click();
+  a.download=`flete ${nombreMes(k)}.csv`;a.click();
   toast('Archivo descargado');
-  function exportUI(){
-  const m=new Map();
-  datos.forEach(c=>{...});
-  const ks=[...m.keys()].sort().reverse();
-  $('e-mes').innerHTML=...;
-  limpiarInfo();
-}
 };
 
 // Acciones en las tarjetas y en la barra
