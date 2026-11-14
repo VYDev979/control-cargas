@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6f43">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Control de cargas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>Control de cargas</header>
+<main>
+<section id="v-nueva">
+  <h2>Nueva carga</h2>
+  <label>Cliente<input id="n-cliente" list="l-clientes" autocomplete="off"></label>
+  <label>Fecha<input id="n-fecha" type="date"></label>
+  <label>Fruta<input id="n-fruta" list="l-frutas" autocomplete="off"></label>
+  <div class="fila">
+    <label>Tachos<input id="n-tachos" type="number" min="1" step="1" inputmode="numeric"></label>
+    <label>Peso total (kg)<input id="n-peso" type="number" min="0" step="0.01" inputmode="decimal"></label>
+  </div>
+  <label>Flete por tacho (S/)<input id="n-flete" type="number" min="0" step="0.01" value="3.30" inputmode="decimal"></label>
+  <p class="total">Total a cobrar: <b id="n-total">S/ 0.00</b></p>
+  <button class="btn" id="n-rev" type="button">Revisar y guardar</button>
+</section>
+
+<section id="v-hist" hidden>
+  <h2>Historial</h2>
+  <div id="h-lista"></div>
+</section>
+
+<section id="v-buscar" hidden>
+  <h2>Buscar cliente</h2>
+  <label>Cliente (vacío = todos)<input id="b-cliente" list="l-clientes" autocomplete="off"></label>
+  <label>Mes<select id="b-mes"></select></label>
+  <fieldset>
+    <legend class="mut">Filtros (usa solo los que quieras)</legend>
+    <label class="chk"><input type="checkbox" id="b-pago"> Pagó</label>
+    <label class="chk"><input type="checkbox" id="b-debe"> Debe</label>
+    <div class="fila"><input id="b-fruta" list="l-frutas" placeholder="Fruta: manzana, pera..." autocomplete="off"><button class="btn sec" id="b-add" type="button" style="flex:0 0 auto;width:auto">Agregar</button></div>
+    <div id="b-chips"></div>
+  </fieldset>
+  <div id="b-res"></div>
+</section>
+
+<section id="v-export" hidden>
+  <h2>Exportar por mes</h2>
+  <p class="mut">Descarga todo lo de un mes. Aquí aparecen todos los meses guardados, también los de más de 4 meses.</p>
+  <label>Mes<select id="e-mes"></select></label>
+  <button class="btn" id="e-go" type="button">Descargar CSV</button>
+</section>
+</main>
+
+<nav>
+  <button data-v="nueva">Nueva</button>
+  <button data-v="hist">Historial</button>
+  <button data-v="buscar">Buscar</button>
+  <button data-v="export">Exportar</button>
+</nav>
+
+<datalist id="l-clientes"></datalist>
+<datalist id="l-frutas"></datalist>
+<dialog id="dlg">
+  <p id="d-txt"></p>
+  <div class="fila"><button class="btn sec" id="d-no" type="button">Corregir</button><button class="btn" id="d-ok" type="button">Guardar</button></div>
+</dialog>
+<div id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
