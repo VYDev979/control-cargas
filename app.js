@@ -143,6 +143,13 @@ $('e-go').onclick=()=>{
   a.href=URL.createObjectURL(new Blob(['\ufeff'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}));
    a.download=`flete ${nombreMes(k)}.csv`;a.click();
   toast('Archivo descargado');
+  function exportUI(){
+  const m=new Map();
+  datos.forEach(c=>{...});
+  const ks=[...m.keys()].sort().reverse();
+  $('e-mes').innerHTML=...;
+  limpiarInfo();
+}
 };
 
 // Acciones en las tarjetas y en la barra
@@ -210,4 +217,20 @@ $('i-go').onclick=async()=>{
   if(!confirm(`Se agregarán ${nuevas.length} cargas nuevas.\nYa existían: ${repetidas}\nOmitidas por datos incompletos: ${omitidas}\n\n¿Continuar?`))return;
   for(const c of nuevas)await repo.guardar(c);
   await cargar();exportUI();$('i-file').value='';toast(`${nuevas.length} cargas importadas`);
+};
+// Limpiar lo de más de 4 meses
+const antiguas=()=>datos.filter(c=>c.fecha<limite());
+function limpiarInfo(){
+  const a=antiguas();
+  $('l-info').textContent=a.length
+    ?`Hay ${a.length} ${a.length===1?'carga':'cargas'} de más de 4 meses guardadas (${soles(a.reduce((s,c)=>s+c.total,0))}). Descarga antes su respaldo en CSV.`
+    :'No hay cargas de más de 4 meses.';
+  $('l-go').disabled=!a.length;
+}
+$('l-go').onclick=async()=>{
+  const a=antiguas();
+  if(!a.length)return;
+  if(!confirm(`Se borrarán ${a.length} cargas de más de 4 meses. Esto no se puede deshacer.\n\n¿Ya descargaste su respaldo en CSV?`))return;
+  for(const c of a)await repo.borrar(c.id);
+  await cargar();exportUI();toast('Cargas antiguas borradas');
 };
