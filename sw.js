@@ -1,5 +1,5 @@
 // Si cambias algún archivo, sube el número de versión (v1 → v2)
-const VERSION = 'cargas-v1';
+const VERSION = 'cargas-v2';
 const ARCHIVOS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
