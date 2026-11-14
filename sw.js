@@ -1,5 +1,4 @@
-// Si cambias algún archivo, sube el número de versión (v1 → v2)
-const VERSION = 'cargas-v2';
+const VERSION = 'cargas-v3';
 const ARCHIVOS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -16,7 +15,19 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('index.html')))
-  );
+  e.respondWith(redPrimero(e.request));
 });
+
+async function redPrimero(req) {
+  const cache = await caches.open(VERSION);
+  try {
+    const resp = await Promise.race([
+      fetch(req, { cache: 'no-cache' }),
+      new Promise((_, no) => setTimeout(no, 3000))
+    ]);
+    if (resp && resp.ok) cache.put(req, resp.clone());
+    return resp;
+  } catch (err) {
+    return (await cache.match(req)) || (await cache.match('index.html'));
+  }
+}
