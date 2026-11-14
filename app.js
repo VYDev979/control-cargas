@@ -141,13 +141,8 @@ $('e-go').onclick=()=>{
   L.push(['"DEBE"','','','','','',m2(T.d),''].join(','));
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=`flete ${nombreMes(k)}.csv`;a.click();
-  setTimeout(async()=>{
-    if(confirm(`¿Borrar del celular las ${r.length} cargas de ${nombreMes(k)}? Solo hazlo si el archivo ya se descargó.`)){
-      for(const c of r)await repo.borrar(c.id);
-      await cargar();exportUI();toast('Mes borrado');
-    }
-  },700);
+   a.download=`flete ${nombreMes(k)}.csv`;a.click();
+  toast('Archivo descargado');
 };
 
 // Acciones en las tarjetas y en la barra
