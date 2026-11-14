@@ -169,3 +169,50 @@ document.addEventListener('click',async e=>{
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 })();
+// Importar CSV (agrega a lo existente, sin duplicar)
+function parseCSV(txt){
+  txt=txt.replace(/^\ufeff/,'');
+  const l1=txt.split('\n')[0];
+  const sep=(l1.match(/;/g)||[]).length>(l1.match(/,/g)||[]).length?';':',';
+  const filas=[];let f=[],c='',q=false;
+  for(let i=0;i<txt.length;i++){
+    const ch=txt[i];
+    if(q){if(ch==='"'){if(txt[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===sep){f.push(c);c=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&txt[i+1]==='\n')i++;f.push(c);c='';filas.push(f);f=[]}
+    else c+=ch;
+  }
+  if(c||f.length){f.push(c);filas.push(f)}
+  return filas;
+}
+function fechaISO(s){
+  s=String(s).trim();
+  let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m&&+m[2]>=1&&+m[2]<=12&&+m[1]>=1&&+m[1]<=31)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?s:null;
+}
+$('i-go').onclick=async()=>{
+  const file=$('i-file').files[0];
+  if(!file){toast('Elige primero un archivo CSV');return}
+  const filas=parseCSV(await file.text());
+  const num=v=>parseFloat(String(v).replace(',','.'));
+  const clave=c=>[norm(c.cliente),c.fecha,norm(c.fruta),c.tachos,c.peso,c.flete].join('|');
+  const existentes=new Map();
+  datos.forEach(c=>existentes.set(clave(c),(existentes.get(clave(c))||0)+1));
+  const nuevas=[];let repetidas=0,omitidas=0;
+  filas.forEach(r=>{
+    const a=norm(r[0]||'');
+    if(!a||a==='cliente'||a.startsWith('total')||a==='debe')return;
+    const fecha=fechaISO(r[1]||''),tachos=parseInt(r[3],10),peso=num(r[4])||0,flete=Math.round(num(r[5])*100);
+    if(!fecha||!(tachos>0)||!norm(r[2]||'')||!(flete>=0)){omitidas++;return}
+    const c=new Carga({cliente:r[0].trim(),fecha,fruta:r[2].trim(),tachos,peso,flete,pagado:['pagó','pago'].includes(norm(r[7]||''))});
+    const k=clave(c);
+    if(existentes.get(k)>0){existentes.set(k,existentes.get(k)-1);repetidas++}else nuevas.push(c);
+  });
+  if(!nuevas.length){alert(`No hay cargas nuevas para agregar.\nYa existían: ${repetidas}\nOmitidas por datos incompletos: ${omitidas}`);return}
+  if(!confirm(`Se agregarán ${nuevas.length} cargas nuevas.\nYa existían: ${repetidas}\nOmitidas por datos incompletos: ${omitidas}\n\n¿Continuar?`))return;
+  for(const c of nuevas)await repo.guardar(c);
+  await cargar();exportUI();$('i-file').value='';toast(`${nuevas.length} cargas importadas`);
+};
