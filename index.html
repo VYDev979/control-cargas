@@ -19,10 +19,10 @@
   <label>Fruta<input id="n-fruta" list="l-frutas" autocomplete="off"></label>
   <div class="fila">
     <label>Tachos<input id="n-tachos" type="number" min="1" step="1" inputmode="numeric"></label>
-    <label>Peso total (kg)<input id="n-peso" type="number" min="0" step="0.01" inputmode="decimal"></label>
+    <label>Flete por tacho (S/)<input id="n-flete" type="number" min="0" step="0.01" value="3.30" inputmode="decimal"></label>
   </div>
-  <label>Flete por tacho (S/)<input id="n-flete" type="number" min="0" step="0.01" value="3.30" inputmode="decimal"></label>
-  <p class="total">Total a cobrar: <b id="n-total">S/ 0.00</b></p>
+  <label>Adelanto (S/)<input id="n-adel" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+  <p class="total">Total a cobrar: <b id="n-total">S/ 0.00</b><br>Debe: <b class="deb" id="n-debe">S/ 0.00</b></p>
   <button class="btn" id="n-rev" type="button">Revisar y guardar</button>
 </section>
 
@@ -37,7 +37,7 @@
   <label>Mes<select id="b-mes"></select></label>
   <fieldset>
     <legend class="mut">Filtros (usa solo los que quieras)</legend>
-    <label class="chk"><input type="checkbox" id="b-pago"> Pagó</label>
+    <label class="chk"><input type="checkbox" id="b-pago"> Pagado</label>
     <label class="chk"><input type="checkbox" id="b-debe"> Debe</label>
     <div class="fila"><input id="b-fruta" list="l-frutas" placeholder="Fruta: manzana, pera..." autocomplete="off"><button class="btn sec" id="b-add" type="button" style="flex:0 0 auto;width:auto">Agregar</button></div>
     <div id="b-chips"></div>
@@ -50,12 +50,12 @@
   <p class="mut">Descarga todo lo de un mes. Aquí aparecen todos los meses guardados, también los de más de 4 meses.</p>
   <label>Mes<select id="e-mes"></select></label>
   <button class="btn" id="e-go" type="button">Descargar CSV</button>
-   <hr>
+  <hr>
   <h2>Importar</h2>
   <p class="mut">Carga un archivo CSV que descargaste de esta app. Las cargas nuevas se agregan a las que ya tienes; las repetidas se omiten.</p>
   <label>Archivo CSV<input id="i-file" type="file" accept=".csv,text/csv"></label>
   <button class="btn" id="i-go" type="button">Importar</button>
-    <hr>
+  <hr>
   <h2>Limpiar lo antiguo</h2>
   <p class="mut" id="l-info"></p>
   <button class="btn sec" id="l-go" type="button">Borrar cargas de más de 4 meses</button>
@@ -66,15 +66,37 @@
   <button data-v="nueva">Nueva</button>
   <button data-v="hist">Historial</button>
   <button data-v="buscar">Buscar</button>
-    <button data-v="export">Respaldo</button>
+  <button data-v="export">Respaldo</button>
 </nav>
 
 <datalist id="l-clientes"></datalist>
 <datalist id="l-frutas"></datalist>
+
 <dialog id="dlg">
   <p id="d-txt"></p>
   <div class="fila"><button class="btn sec" id="d-no" type="button">Corregir</button><button class="btn" id="d-ok" type="button">Guardar</button></div>
 </dialog>
+
+<dialog id="ed">
+  <h2>Editar carga</h2>
+  <label>Cliente<input id="x-cliente" list="l-clientes" autocomplete="off"></label>
+  <label>Fecha<input id="x-fecha" type="date"></label>
+  <label>Fruta<input id="x-fruta" list="l-frutas" autocomplete="off"></label>
+  <div class="fila">
+    <label>Tachos<input id="x-tachos" type="number" min="1" step="1" inputmode="numeric"></label>
+    <label>Flete por tacho (S/)<input id="x-flete" type="number" min="0" step="0.01" inputmode="decimal"></label>
+  </div>
+  <p class="total">Total: <b id="x-total"></b><br>Debe: <b class="deb" id="x-debe"></b></p>
+  <h3>Adelantos</h3>
+  <div id="x-adel"></div>
+  <div class="fila">
+    <input id="x-monto" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Monto S/">
+    <input id="x-fadel" type="date">
+  </div>
+  <button class="btn sec" id="x-addadel" type="button" style="margin-top:8px">Agregar adelanto</button>
+  <div class="fila" style="margin-top:14px"><button class="btn sec" id="x-cancel" type="button">Cancelar</button><button class="btn" id="x-save" type="button">Guardar cambios</button></div>
+</dialog>
+
 <div id="toast" hidden></div>
 
 <script src="app.js"></script>
