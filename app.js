@@ -109,11 +109,14 @@ $('d-ok').onclick=async()=>{
 // Editar carga y sus adelantos
 function pintarEd(){
   const t=(parseInt($('x-tachos').value,10)||0)*cent($('x-flete').value),p=edAdel.reduce((s,a)=>s+a.m,0);
+  const deb=Math.max(0,t-p),lleno=t>0&&deb===0;
   $('x-total').textContent=soles(t);
-  $('x-debe').textContent=soles(Math.max(0,t-p));
-  $('x-adel').innerHTML=edAdel.length
+  $('x-debe').textContent=soles(deb);
+  ['x-monto','x-fadel','x-addadel'].forEach(i=>$(i).disabled=lleno);
+  $('x-monto').placeholder=lleno?'Pagado':'Máx. '+soles(deb);
+  $('x-adel').innerHTML=(lleno?'<p class="ok">Ya está pagado: no se pueden agregar más adelantos.</p>':'')+(edAdel.length
     ?edAdel.map((a,i)=>`<div class="top"><span>${i+1}.º adelanto · ${diaFecha(a.f)} · <b>${soles(a.m)}</b></span><button class="mini peligro" data-xq="${i}">Quitar</button></div>`).join('')+`<div class="mut">${edAdel.length} ${edAdel.length===1?'adelanto':'adelantos'} · total ${soles(p)}</div>`
-    :'<p class="mut">Sin adelantos todavía.</p>';
+    :'<p class="mut">Sin adelantos todavía.</p>');
 }
 function abrirEd(id){
   const c=datos.find(x=>x.id==id);if(!c)return;
@@ -127,6 +130,9 @@ function abrirEd(id){
 $('x-addadel').onclick=()=>{
   const m=cent($('x-monto').value);
   if(!(m>0)){toast('Escribe el monto del adelanto');return}
+  const t=(parseInt($('x-tachos').value,10)||0)*cent($('x-flete').value),deb=Math.max(0,t-edAdel.reduce((s,a)=>s+a.m,0));
+  if(t===0){toast('Escribe primero los tachos');return}
+  if(m>deb){toast(deb===0?'Ya está pagado':'Solo debe '+soles(deb));return}
   edAdel.push({f:$('x-fadel').value||hoy(),m});
   edAdel.sort((a,b)=>a.f.localeCompare(b.f));
   $('x-monto').value='';pintarEd();
@@ -137,7 +143,7 @@ $('x-save').onclick=async()=>{
   if(!cl||!fr||!(t>0)){toast('Completa cliente, fruta y tachos');return}
   const m=cent($('x-monto').value); // si escribiste un monto y no tocaste "Agregar", también se guarda
   const adel=[...edAdel,...(m>0?[{f:$('x-fadel').value||hoy(),m}]:[])].sort((a,b)=>a.f.localeCompare(b.f));
-  if(adel.reduce((s,a)=>s+a.m,0)>t*fl){toast('Los adelantos superan el total');return}
+  if(adel.reduce((s,a)=>s+a.m,0)>t*fl){toast('Los adelantos superan lo que debe');return}
   await repo.guardar(new Carga({id:edId,cliente:cl,fecha:$('x-fecha').value||hoy(),fruta:fr,tachos:t,flete:fl,adelantos:adel}));
   $('ed').close();await cargar();refrescar();toast('Cambios guardados');
 };
